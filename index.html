@@ -1,560 +1,480 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PFRMT v1.0 - Prop Firm Risk Management Table</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            tvBg: '#121417',
-            tvCard: '#1e222d',
-            tvBorder: '#2a2e39',
-            tvTextDim: '#787b86',
-            tvText: '#d1d4dc',
-            tvAccentGreen: '#26a69a',
-            tvAccentTeal: '#00897b',
-            tvAccentOrange: '#ff9800',
-            tvAccentRed: '#ef5350',
-            tvAccentAqua: '#00bcd4',
-            tvAccentBlue: '#2196f3',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PFRMT v1.0 | Trading Terminal Risk Engine</title>
   <style>
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    :root {
+      --tv-dark-bg: #131722;
+      --tv-card-bg: #1e222d;
+      --tv-header-bg: #2a2e39;
+      --tv-border: #363a45;
+      --tv-border-light: rgba(255, 255, 255, 0.07);
+      
+      --tv-text-primary: #d1d4dc;
+      --tv-text-secondary: #787b86;
+      --tv-text-bright: #ffffff;
+      
+      --tv-teal: #089981;
+      --tv-teal-light: rgba(8, 153, 129, 0.15);
+      --tv-red: #f23645;
+      --tv-red-light: rgba(242, 54, 69, 0.15);
+      --tv-blue: #2962ff;
+      --tv-blue-hover: #1e53e5;
+      --tv-orange: #ff9800;
+      --tv-orange-light: rgba(255, 152, 0, 0.15);
+      --tv-aqua: #00bcd4;
+      --tv-aqua-light: rgba(0, 188, 212, 0.15);
     }
-    ::-webkit-scrollbar-track {
-      background: #121417;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #2a2e39;
+
+    body {
+      background-color: var(--tv-dark-bg);
+      color: var(--tv-text-primary);
+      padding: 12px;
+      font-size: 13px;
+      padding-bottom: 30px;
+    }
+
+    /* TOP BAR / TERMINAL HEADER */
+    .terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--tv-card-bg);
+      border: 1px solid var(--tv-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--tv-text-bright);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title span {
+      color: var(--tv-blue);
+    }
+
+    .terminal-status {
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(41, 98, 255, 0.15);
+      color: #64b5f6;
+      border: 1px solid rgba(41, 98, 255, 0.3);
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* CARD CONTAINERS */
+    .card {
+      background: var(--tv-card-bg);
+      border: 1px solid var(--tv-border);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: var(--tv-header-bg);
+      color: var(--tv-text-bright);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid var(--tv-border);
+    }
+
+    .card-header .icon {
+      font-size: 10px;
+      color: var(--tv-text-secondary);
+      transition: transform 0.2s ease;
+    }
+
+    /* SETTINGS GRID */
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group.full {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--tv-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      background: var(--tv-dark-bg);
+      border: 1px solid var(--tv-border);
+      color: var(--tv-text-bright);
+      padding: 9px 10px;
       border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s ease;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #363a45;
+
+    input:focus {
+      border-color: var(--tv-blue);
     }
-    
-    /* Number Input arrow styling */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
+
+    /* PRESET BUTTONS FOR QUICK RISK SELECTION */
+    .preset-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
     }
-    input[type=number] {
-      -moz-appearance: textfield;
+
+    .btn-preset {
+      flex: 1;
+      background: var(--tv-dark-bg);
+      border: 1px solid var(--tv-border);
+      color: var(--tv-text-secondary);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 0;
+      border-radius: 3px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-preset:active {
+      background: var(--tv-blue);
+      color: var(--tv-text-bright);
+    }
+
+    /* STATS & METRICS DISPLAY ROWS */
+    .metrics-group {
+      padding: 0 4px;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--tv-border-light);
+    }
+
+    .data-row:last-child {
+      border-bottom: none;
+    }
+
+    .data-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--tv-text-primary);
+    }
+
+    .data-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--tv-text-bright);
+      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* HIGHLIGHT ACCENTS */
+    .row-teal { background: var(--tv-teal-light); }
+    .row-teal .data-value { color: var(--tv-teal); }
+
+    .row-orange { background: var(--tv-orange-light); }
+    .row-orange .data-value { color: var(--tv-orange); }
+
+    .row-red { background: var(--tv-red-light); }
+    .row-red .data-value { color: var(--tv-red); }
+
+    .row-aqua { background: var(--tv-aqua-light); }
+    .row-aqua .data-value { color: var(--tv-aqua); }
+
+    .tag-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .badge-teal { background: rgba(8, 153, 129, 0.2); color: var(--tv-teal); }
+    .badge-red { background: rgba(242, 54, 69, 0.2); color: var(--tv-red); }
+
+    /* FOOTER BAR */
+    .terminal-footer {
+      text-align: center;
+      color: var(--tv-text-secondary);
+      font-size: 11px;
+      margin-top: 16px;
+      padding: 8px;
     }
   </style>
 </head>
-<body class="bg-tvBg text-tvText font-sans min-h-screen flex flex-col antialiased selection:bg-tvAccentBlue selection:text-white">
+<body>
 
-  <!-- TOP NAVIGATION HEADER -->
-  <header class="bg-tvCard border-b border-tvBorder sticky top-0 z-30 px-4 py-3 sm:px-6 flex items-center justify-between shadow-md">
-    <div class="flex items-center space-x-3">
-      <div class="p-2 bg-tvAccentBlue/10 text-tvAccentBlue rounded-lg border border-tvAccentBlue/20">
-        <i data-lucide="shield-alert" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <h1 class="font-bold text-white text-base sm:text-lg leading-tight flex items-center gap-2">
-          PFRMT <span class="text-xs px-2 py-0.5 rounded bg-tvAccentBlue/20 text-tvAccentBlue font-mono border border-tvAccentBlue/30">v1.0</span>
-        </h1>
-        <p class="text-xs text-tvTextDim hidden sm:block">Prop Firm Risk Management Table & Calculator</p>
-      </div>
+  <!-- TERMINAL BRAND HEADER -->
+  <div class="terminal-header">
+    <div class="brand-title">
+      <span>▲</span> MX CAPITAL | PFRMT v1.0
     </div>
+    <div class="terminal-status">LIVE MATRIX</div>
+  </div>
 
-    <!-- Quick Actions / Quick Stats Header Badge -->
-    <div class="flex items-center space-x-3">
-      <div id="statusBadge" class="px-2.5 py-1 rounded-full text-xs font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="statusBadgeText">Target Safe</span>
-      </div>
+  <!-- CONTROL PANEL (COLLAPSIBLE) -->
+  <div class="card">
+    <div class="card-header" onclick="toggleInputs()">
+      <span>⚙️ Parameter Controls</span>
+      <span class="icon" id="acc-icon">▲</span>
+    </div>
+    <div class="inputs-grid" id="inputs-container">
       
-      <button onclick="resetDefaults()" class="p-2 rounded-lg bg-tvBg hover:bg-tvBorder text-tvTextDim hover:text-white transition-colors" title="Reset to Defaults">
-        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-      </button>
-    </div>
-  </header>
+      <!-- STOP LOSS / TAKE PROFIT -->
+      <div class="input-group">
+        <label>Stop Loss (Pts)</label>
+        <input type="number" id="slPoints" value="1000" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Take Profit (Pts)</label>
+        <input type="number" id="tpPoints" value="2000" oninput="calculate()">
+      </div>
 
-  <!-- MOBILE STICKY METRICS SUMMARY (Only visible on Mobile < 768px) -->
-  <div class="md:hidden bg-tvCard/90 backdrop-blur border-b border-tvBorder p-3 sticky top-[57px] z-20 grid grid-cols-3 gap-2 text-center text-xs">
-    <div class="p-1.5 rounded bg-tvBg border border-tvBorder">
-      <div class="text-tvTextDim uppercase text-[10px]">Lot Size</div>
-      <div class="font-mono font-bold text-tvAccentOrange text-sm" id="mob-lotSize">-</div>
-    </div>
-    <div class="p-1.5 rounded bg-tvBg border border-tvBorder">
-      <div class="text-tvTextDim uppercase text-[10px]">Risk / Trade</div>
-      <div class="font-mono font-bold text-tvAccentRed text-sm" id="mob-riskVal">-</div>
-    </div>
-    <div class="p-1.5 rounded bg-tvBg border border-tvBorder">
-      <div class="text-tvTextDim uppercase text-[10px]">Wins to Pass</div>
-      <div class="font-mono font-bold text-tvAccentAqua text-sm" id="mob-winsToPass">-</div>
+      <!-- ACCOUNT SIZE & PROFIT -->
+      <div class="input-group">
+        <label>Account Size ($)</label>
+        <input type="number" id="accountSize" value="10000" step="500" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Current P/L ($)</label>
+        <input type="number" id="currentProfit" value="0" step="10" oninput="calculate()">
+      </div>
+
+      <!-- PROP PARAMS -->
+      <div class="input-group">
+        <label>Target %</label>
+        <input type="number" id="targetPercent" value="10" step="0.5" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Daily DD %</label>
+        <input type="number" id="dailyDDPercent" value="5" step="0.5" oninput="calculate()">
+      </div>
+
+      <!-- RISK CONTROLS WITH PRESETS -->
+      <div class="input-group">
+        <label>Risk / Trade (%)</label>
+        <input type="number" id="riskPercent" value="1.0" step="0.1" oninput="calculate()">
+        <div class="preset-row">
+          <div class="btn-preset" onclick="setRisk(0.5)">0.5%</div>
+          <div class="btn-preset" onclick="setRisk(1.0)">1.0%</div>
+          <div class="btn-preset" onclick="setRisk(2.0)">2.0%</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Max Overall DD %</label>
+        <input type="number" id="maxDrawdownPerc" value="10" step="0.5" oninput="calculate()">
+      </div>
+
+      <!-- INSTRUMENT SPECIFIC -->
+      <div class="input-group full">
+        <label>Pip/Point Value per 1 Lot ($)</label>
+        <input type="number" id="pipValuePerLot" value="1.0" step="0.1" oninput="calculate()">
+      </div>
+
+      <!-- MANUAL TRACKING STATS -->
+      <div class="input-group">
+        <label>Win Trades</label>
+        <input type="number" id="winTrades" value="0" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Loss Trades</label>
+        <input type="number" id="lossTrades" value="0" oninput="calculate()">
+      </div>
+
     </div>
   </div>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- LEFT COLUMN: INPUTS PANEL (4 Cols on LG) -->
-      <section class="lg:col-span-5 space-y-4">
-        
-        <!-- Accordion/Card Container -->
-        <div class="bg-tvCard rounded-xl border border-tvBorder overflow-hidden shadow-lg">
-          
-          <!-- Header -->
-          <div class="p-4 bg-tvCard border-b border-tvBorder flex items-center justify-between">
-            <h2 class="font-semibold text-white flex items-center gap-2">
-              <i data-lucide="sliders" class="w-4 h-4 text-tvAccentBlue"></i> Parameters & Inputs
-            </h2>
-            <button onclick="toggleMobileInputs()" class="lg:hidden text-xs text-tvAccentBlue font-semibold flex items-center gap-1">
-              <span id="inputToggleLabel">Hide Inputs</span>
-              <i data-lucide="chevron-down" id="inputToggleIcon" class="w-4 h-4 transition-transform"></i>
-            </button>
-          </div>
-
-          <!-- Input Fields Form -->
-          <div id="inputsForm" class="p-4 space-y-5">
-
-            <!-- GROUP 1: Prop Account Settings -->
-            <div>
-              <div class="text-xs font-semibold text-tvAccentBlue uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <i data-lucide="landmark" class="w-3.5 h-3.5"></i> Prop Account Settings
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Account Size ($)</label>
-                  <input type="number" id="accountSize" value="10000" step="100" min="100" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Current Total P/L ($)</label>
-                  <input type="number" id="currentProfit" value="0" step="10" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Target % to Pass</label>
-                  <input type="number" id="targetPercent" value="10.0" step="0.5" min="1" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Daily DD %</label>
-                  <input type="number" id="dailyDDPercent" value="5.0" step="0.5" min="0.5" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Max Overall DD %</label>
-                  <input type="number" id="maxDrawdownPerc" value="10.0" step="0.5" min="1" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Risk per Trade (%)</label>
-                  <input type="number" id="riskPercent" value="1.0" step="0.1" min="0.1" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-              </div>
-            </div>
-
-            <hr class="border-tvBorder/60" />
-
-            <!-- GROUP 2: Trade Execution Risk -->
-            <div>
-              <div class="text-xs font-semibold text-tvAccentOrange uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Trade & Position Parameters
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Stop Loss (points)</label>
-                  <input type="number" id="slPoints" value="1000" min="1" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Take Profit (points)</label>
-                  <input type="number" id="tpPoints" value="2000" min="1" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div class="col-span-2">
-                  <label class="block text-xs text-tvTextDim mb-1">Pip Value per 1 Lot ($)</label>
-                  <input type="number" id="pipValuePerLot" value="1.0" step="0.1" min="0.01" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                  <p class="text-[11px] text-tvTextDim mt-1">Adjust based on instrument contract size & symbol tick value.</p>
-                </div>
-              </div>
-            </div>
-
-            <hr class="border-tvBorder/60" />
-
-            <!-- GROUP 3: Manual Stats Input -->
-            <div>
-              <div class="text-xs font-semibold text-tvAccentAqua uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Manual Trade History Stats
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Winning Trades</label>
-                  <input type="number" id="winTrades" value="0" min="0" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-emerald-400 font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-xs text-tvTextDim mb-1">Losing Trades</label>
-                  <input type="number" id="lossTrades" value="0" min="0" oninput="calculate()" class="w-full bg-tvBg border border-tvBorder rounded-lg px-3 py-2 text-sm text-rose-400 font-mono focus:border-tvAccentBlue focus:outline-none transition-colors" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-
-      <!-- RIGHT COLUMN: DASHBOARD & CALCULATED TABLES (7 Cols on LG) -->
-      <section class="lg:col-span-7 space-y-6">
-
-        <!-- MAIN TABLE 1: PROP FIRM RISK MANAGEMENT TABLE -->
-        <div class="bg-tvCard rounded-xl border border-tvBorder overflow-hidden shadow-lg">
-          <div class="p-4 bg-black/40 border-b border-tvBorder flex items-center justify-between">
-            <h2 class="font-bold text-white text-sm sm:text-base uppercase tracking-wider flex items-center gap-2">
-              <i data-lucide="layout-grid" class="w-4 h-4 text-tvAccentGreen"></i> Risk Management Table
-            </h2>
-            <span class="text-xs font-mono text-tvTextDim">PFRMT v1.0</span>
-          </div>
-
-          <!-- Structured Responsive Output Table -->
-          <div class="divide-y divide-tvBorder/60 text-sm">
-            
-            <!-- SECTION: TARGET -->
-            <div class="bg-black/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-tvTextDim">
-              Target Parameters
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentGreen/10 hover:bg-tvAccentGreen/15 transition-colors">
-              <span class="text-tvText font-medium">Account Size</span>
-              <span class="font-mono font-bold text-white" id="out-accountSize">$10,000.00</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentGreen/10 hover:bg-tvAccentGreen/15 transition-colors">
-              <span class="text-tvText font-medium">Target Profit</span>
-              <span class="font-mono font-bold text-white" id="out-targetProfit">$1,000.00 (10%)</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentGreen/10 hover:bg-tvAccentGreen/15 transition-colors">
-              <span class="text-tvText font-medium">Target Balance</span>
-              <span class="font-mono font-bold text-white" id="out-targetBalance">$11,000.00</span>
-            </div>
-
-            <!-- SECTION: CURRENT STATUS -->
-            <div class="bg-black/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-tvTextDim">
-              Current Status
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentTeal/10 hover:bg-tvAccentTeal/15 transition-colors">
-              <span class="text-tvText font-medium">Current Balance</span>
-              <span class="font-mono font-bold text-white" id="out-currentBalance">$10,000.00</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentTeal/10 hover:bg-tvAccentTeal/15 transition-colors">
-              <span class="text-tvText font-medium">Current Profit</span>
-              <span class="font-mono font-bold" id="out-currentProfit">$0.00</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentTeal/10 hover:bg-tvAccentTeal/15 transition-colors">
-              <span class="text-tvText font-medium">Progress to Target</span>
-              <div class="flex items-center gap-2">
-                <div class="w-20 bg-tvBg rounded-full h-2 hidden sm:block overflow-hidden border border-tvBorder">
-                  <div id="progress-bar" class="bg-tvAccentTeal h-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-                <span class="font-mono font-bold text-white" id="out-progressPct">0.00 %</span>
-              </div>
-            </div>
-
-            <!-- SECTION: TRADE RISK -->
-            <div class="bg-black/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-tvTextDim">
-              Trade Sizing & Exposure
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentOrange/10 hover:bg-tvAccentOrange/15 transition-colors">
-              <span class="text-tvText font-medium flex items-center gap-1.5">
-                Lot Size 
-                <span class="text-[10px] text-tvAccentOrange bg-tvAccentOrange/20 px-1.5 py-0.5 rounded font-mono">Calculated</span>
-              </span>
-              <span class="font-mono font-bold text-tvAccentOrange text-base" id="out-lotSize">0.10</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentOrange/10 hover:bg-tvAccentOrange/15 transition-colors">
-              <span class="text-tvText font-medium">Risk / Trade</span>
-              <span class="font-mono font-bold text-white" id="out-riskPerTrade">$100.00 (1.00%)</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentOrange/10 hover:bg-tvAccentOrange/15 transition-colors">
-              <span class="text-tvText font-medium">Reward @ TP</span>
-              <span class="font-mono font-bold text-white" id="out-rewardPerTrade">$200.00 (2.00%)</span>
-            </div>
-
-            <!-- SECTION: DRAWDOWN & MILESTONES -->
-            <div class="bg-black/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-tvTextDim">
-              Drawdown Limits & Pass Metrics
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentRed/10 hover:bg-tvAccentRed/15 transition-colors">
-              <span class="text-tvText font-medium">Daily Drawdown Limit</span>
-              <span class="font-mono font-bold text-tvAccentRed" id="out-dailyDD">$500.00 (5.00%)</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentRed/10 hover:bg-tvAccentRed/15 transition-colors">
-              <span class="text-tvText font-medium">Max Overall Drawdown</span>
-              <span class="font-mono font-bold text-tvAccentRed" id="out-maxDD">$1,000.00 (10.00%)</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentRed/10 hover:bg-tvAccentRed/15 transition-colors">
-              <span class="text-tvText font-medium">Losses to Daily DD</span>
-              <span class="font-mono font-bold text-white" id="out-lossesDailyDD">5</span>
-            </div>
-            <div class="flex justify-between items-center px-4 py-3 bg-tvAccentAqua/10 hover:bg-tvAccentAqua/15 transition-colors">
-              <span class="text-tvText font-medium">Consecutive Wins to Pass</span>
-              <span class="font-mono font-bold text-tvAccentAqua text-base" id="out-winsToPass">5</span>
-            </div>
-
-          </div>
-        </div>
-
-
-        <!-- TABLE 2: RRR & RATIO METRICS -->
-        <div class="bg-tvCard rounded-xl border border-tvBorder overflow-hidden shadow-lg">
-          <div class="p-4 bg-black/40 border-b border-tvBorder flex items-center justify-between">
-            <h2 class="font-bold text-white text-sm sm:text-base uppercase tracking-wider flex items-center gap-2">
-              <i data-lucide="pie-chart" class="w-4 h-4 text-tvAccentAqua"></i> RRR Metrics & Win Rate Table
-            </h2>
-            <span class="text-xs font-mono text-tvTextDim">Position Stats</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-tvBorder">
-            
-            <!-- Left Sub-Grid -->
-            <div class="divide-y divide-tvBorder/60 text-sm">
-              <div class="flex justify-between items-center px-4 py-3 bg-black/40">
-                <span class="text-tvText font-medium">Risk : Reward Ratio</span>
-                <span class="font-mono font-bold text-white bg-black/60 px-2 py-0.5 rounded border border-tvBorder" id="out-rrr">1:2.00</span>
-              </div>
-              <div class="flex justify-between items-center px-4 py-3 bg-tvAccentRed/10">
-                <span class="text-tvText font-medium">Risk Points (SL)</span>
-                <span class="font-mono font-bold text-white" id="out-riskPoints">1,000</span>
-              </div>
-              <div class="flex justify-between items-center px-4 py-3 bg-tvAccentBlue/10">
-                <span class="text-tvText font-medium">Reward Points (TP)</span>
-                <span class="font-mono font-bold text-white" id="out-rewardPoints">2,000</span>
-              </div>
-            </div>
-
-            <!-- Right Sub-Grid -->
-            <div class="divide-y divide-tvBorder/60 text-sm">
-              <div class="flex justify-between items-center px-4 py-3 bg-tvAccentAqua/10">
-                <span class="text-tvText font-medium">Breakeven Win Rate</span>
-                <span class="font-mono font-bold text-tvAccentAqua" id="out-breakevenWR">33.33 %</span>
-              </div>
-              <div class="flex justify-between items-center px-4 py-3 bg-white/5">
-                <span class="text-tvText font-medium">Manual Win Rate</span>
-                <span class="font-mono font-bold text-white" id="out-winRate">n/a</span>
-              </div>
-              <div class="flex justify-between items-center px-4 py-3 bg-black/40">
-                <span class="text-tvText font-medium">Total Manual Trades</span>
-                <span class="font-mono font-bold text-tvTextDim" id="out-totalTrades">0</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </section>
-
+  <!-- EXECUTIVE METRICS DISPLAY -->
+  <div class="card">
+    <div class="card-header">TARGET & STATUS</div>
+    <div class="metrics-group">
+      <div class="data-row"><span class="data-label">Account Capital</span><span class="data-value" id="out-accountSize">-</span></div>
+      <div class="data-row row-teal"><span class="data-label">Target Profit</span><span class="data-value" id="out-targetProfit">-</span></div>
+      <div class="data-row"><span class="data-label">Target Balance</span><span class="data-value" id="out-targetBalance">-</span></div>
+      <div class="data-row"><span class="data-label">Current Balance</span><span class="data-value" id="out-currentBalance">-</span></div>
+      <div class="data-row"><span class="data-label">Current Net P/L</span><span class="data-value" id="out-currentProfit">-</span></div>
+      <div class="data-row row-teal"><span class="data-label">Progress to Target</span><span class="data-value" id="out-progressPct">-</span></div>
     </div>
-  </main>
+  </div>
+
+  <div class="card">
+    <div class="card-header">POSITION SIZING & RISK</div>
+    <div class="metrics-group">
+      <div class="data-row row-orange"><span class="data-label">Calculated Lot Size</span><span class="data-value" id="out-lotSize">-</span></div>
+      <div class="data-row row-orange"><span class="data-label">Risk per Trade</span><span class="data-value" id="out-riskPerTrade">-</span></div>
+      <div class="data-row row-teal"><span class="data-label">Reward @ TP Target</span><span class="data-value" id="out-rewardPerTrade">-</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">DRAWDOWN SAFETY MATRIX</div>
+    <div class="metrics-group">
+      <div class="data-row row-red"><span class="data-label">Daily DD Allowance</span><span class="data-value" id="out-dailyDD">-</span></div>
+      <div class="data-row row-red"><span class="data-label">Max DD Limit</span><span class="data-value" id="out-maxDD">-</span></div>
+      <div class="data-row row-red"><span class="data-label">Losses to Daily DD</span><span class="data-value" id="out-lossesDailyDD">-</span></div>
+      <div class="data-row row-aqua"><span class="data-label">Wins to Pass Challenge</span><span class="data-value" id="out-winsToPass">-</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">RRR STATISTICAL ENGINE</div>
+    <div class="metrics-group">
+      <div class="data-row"><span class="data-label">Risk : Reward Ratio</span><span class="data-value" id="out-rrr">-</span></div>
+      <div class="data-row row-red"><span class="data-label">SL Risk (Points)</span><span class="data-value" id="out-riskPoints">-</span></div>
+      <div class="data-row row-teal"><span class="data-label">TP Target (Points)</span><span class="data-value" id="out-rewardPoints">-</span></div>
+      <div class="data-row row-aqua"><span class="data-label">Breakeven Win Rate</span><span class="data-value" id="out-breakevenWR">-</span></div>
+      <div class="data-row"><span class="data-label">Actual Win Rate</span><span class="data-value" id="out-winRate">-</span></div>
+    </div>
+  </div>
 
   <!-- FOOTER BRANDING -->
-  <footer class="mt-auto border-t border-tvBorder bg-tvCard py-4 px-4 text-center">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-tvTextDim">
-      <div class="flex items-center space-x-2">
-        <span class="font-semibold text-white">MX Capital®</span>
-        <span>|</span>
-        <span>Created by Gimbo</span>
-      </div>
-      <div class="font-mono text-[11px] text-tvTextDim">
-        Exact TradingView PineScript v1.0 Port
-      </div>
-    </div>
-  </footer>
+  <div class="terminal-footer">
+    MX Capital® | Proprietary Risk Terminal | Created by Gimbo
+  </div>
 
-  <!-- SCRIPT LOGIC -->
   <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
-
-    // Toggle Mobile Inputs Accordion
-    let inputsVisible = true;
-    function toggleMobileInputs() {
-      const form = document.getElementById('inputsForm');
-      const label = document.getElementById('inputToggleLabel');
-      const icon = document.getElementById('inputToggleIcon');
-
-      inputsVisible = !inputsVisible;
-      if (inputsVisible) {
-        form.classList.remove('hidden');
-        label.textContent = 'Hide Inputs';
-        icon.style.transform = 'rotate(0deg)';
-      } else {
-        form.classList.add('hidden');
-        label.textContent = 'Show Inputs';
-        icon.style.transform = 'rotate(180deg)';
-      }
-    }
-
-    // Formatter helpers
-    function fmtNum(val, decimals = 2) {
+    function fmt(val, decimals = 2) {
       if (isNaN(val) || val === null || !isFinite(val)) return "n/a";
-      return val.toLocaleString('en-US', { 
-        minimumFractionDigits: decimals, 
-        maximumFractionDigits: decimals 
-      });
+      return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
-    function fmtCurr(val) {
-      if (isNaN(val) || val === null || !isFinite(val)) return "n/a";
-      const formatted = Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      return val < 0 ? `-$${formatted}` : `$${formatted}`;
-    }
-
-    // Reset default values
-    function resetDefaults() {
-      document.getElementById('slPoints').value = 1000;
-      document.getElementById('tpPoints').value = 2000;
-      document.getElementById('winTrades').value = 0;
-      document.getElementById('lossTrades').value = 0;
-      document.getElementById('accountSize').value = 10000;
-      document.getElementById('targetPercent').value = 10.0;
-      document.getElementById('dailyDDPercent').value = 5.0;
-      document.getElementById('maxDrawdownPerc').value = 10.0;
-      document.getElementById('currentProfit').value = 0.0;
-      document.getElementById('riskPercent').value = 1.0;
-      document.getElementById('pipValuePerLot').value = 1.0;
+    function setRisk(val) {
+      document.getElementById("riskPercent").value = val;
       calculate();
     }
 
-    // Core Calculation Routine matching Pine Script v6
+    function toggleInputs() {
+      const body = document.getElementById("inputs-container");
+      const icon = document.getElementById("acc-icon");
+      if (body.style.display === "none") {
+        body.style.display = "grid";
+        icon.style.transform = "rotate(0deg)";
+      } else {
+        body.style.display = "none";
+        icon.style.transform = "rotate(180deg)";
+      }
+    }
+
     function calculate() {
-      // 1. Inputs Extraction
-      const slPoints = parseFloat(document.getElementById('slPoints').value) || 0;
-      const tpPoints = parseFloat(document.getElementById('tpPoints').value) || 0;
-      const winTrades = parseFloat(document.getElementById('winTrades').value) || 0;
-      const lossTrades = parseFloat(document.getElementById('lossTrades').value) || 0;
+      // Inputs
+      const slPoints = parseFloat(document.getElementById("slPoints").value) || 0;
+      const tpPoints = parseFloat(document.getElementById("tpPoints").value) || 0;
+      const accountSize = parseFloat(document.getElementById("accountSize").value) || 0;
+      const currentProfit = parseFloat(document.getElementById("currentProfit").value) || 0;
+      const targetPercent = parseFloat(document.getElementById("targetPercent").value) || 0;
+      const dailyDDPercent = parseFloat(document.getElementById("dailyDDPercent").value) || 0;
+      const maxDrawdownPerc = parseFloat(document.getElementById("maxDrawdownPerc").value) || 0;
+      const riskPercent = parseFloat(document.getElementById("riskPercent").value) || 0;
+      const pipValuePerLot = parseFloat(document.getElementById("pipValuePerLot").value) || 0;
+      const winTrades = parseFloat(document.getElementById("winTrades").value) || 0;
+      const lossTrades = parseFloat(document.getElementById("lossTrades").value) || 0;
 
-      const accountSize = parseFloat(document.getElementById('accountSize').value) || 0;
-      const targetPercent = parseFloat(document.getElementById('targetPercent').value) || 0;
-      const dailyDDPercent = parseFloat(document.getElementById('dailyDDPercent').value) || 0;
-      const maxDrawdownPerc = parseFloat(document.getElementById('maxDrawdownPerc').value) || 0;
-      const currentProfit = parseFloat(document.getElementById('currentProfit').value) || 0;
-
-      const riskPercent = parseFloat(document.getElementById('riskPercent').value) || 0;
-      const pipValuePerLot = parseFloat(document.getElementById('pipValuePerLot').value) || 0;
-
-      // 2. Calculations (Pine Script replicas)
-      const rrr = slPoints > 0 ? (tpPoints / slPoints) : NaN;
-      const riskPips = slPoints;
-
+      // Calculations
+      const rrr = slPoints > 0 ? tpPoints / slPoints : NaN;
       const tradeRiskCurrency = accountSize * (riskPercent / 100.0);
       const tradeRewardCurrency = tradeRiskCurrency * rrr;
       const rewardPercent = riskPercent * rrr;
 
       const targetProfitCurrency = accountSize * (targetPercent / 100.0);
-      const targetBalance = targetProfitCurrency - currentProfit;
-
       const currentBalance = accountSize + currentProfit;
+      const targetBalance = Math.max(targetProfitCurrency - currentProfit, 0);
 
-      let dailyDDCurrency = currentBalance * (dailyDDPercent / 100.0);
-      let maxDDCurrency = currentBalance * (maxDrawdownPerc / 100.0);
-
-      dailyDDCurrency = Math.max(dailyDDCurrency, 0);
-      maxDDCurrency = Math.max(maxDDCurrency, 0);
+      let dailyDDCurrency = Math.max(currentBalance * (dailyDDPercent / 100.0), 0);
+      let maxDDCurrency = Math.max(currentBalance * (maxDrawdownPerc / 100.0), 0);
 
       const progressToTargetPct = targetProfitCurrency > 0 ? (currentProfit / targetProfitCurrency) * 100.0 : NaN;
       const remainingTarget = Math.max(targetProfitCurrency - currentProfit, 0);
 
       const lossesToDailyDD = tradeRiskCurrency > 0 ? Math.floor(dailyDDCurrency / tradeRiskCurrency) : NaN;
-      const lossesToMaxDD = tradeRiskCurrency > 0 ? Math.floor(maxDDCurrency / tradeRiskCurrency) : NaN;
-
       const winsToPass = (rrr * tradeRiskCurrency) > 0 ? Math.ceil(remainingTarget / (rrr * tradeRiskCurrency)) : NaN;
 
       const breakevenWinrate = rrr > 0 ? (1.0 / (rrr + 1.0)) * 100.0 : NaN;
-
-      const lotSize = (riskPips > 0 && pipValuePerLot > 0) ? (tradeRiskCurrency / (riskPips * pipValuePerLot)) : NaN;
+      const lotSize = (slPoints > 0 && pipValuePerLot > 0) ? tradeRiskCurrency / (slPoints * pipValuePerLot) : NaN;
 
       const totalTrades = winTrades + lossTrades;
       const winRatePct = totalTrades > 0 ? (winTrades / totalTrades) * 100.0 : NaN;
 
-      // 3. UI Updates - Main Table
-      document.getElementById('out-accountSize').textContent = fmtCurr(accountSize);
-      document.getElementById('out-targetProfit').textContent = `${fmtCurr(targetProfitCurrency)} (${fmtNum(targetPercent)}%)`;
-      document.getElementById('out-targetBalance').textContent = fmtCurr(accountSize + targetProfitCurrency);
-
-      document.getElementById('out-currentBalance').textContent = fmtCurr(currentBalance);
+      // Outputs: Target & Status
+      document.getElementById("out-accountSize").textContent = "$" + fmt(accountSize);
+      document.getElementById("out-targetProfit").textContent = `$${fmt(targetProfitCurrency)} (${fmt(targetPercent, 1)}%)`;
+      document.getElementById("out-targetBalance").textContent = "$" + fmt(targetBalance);
+      document.getElementById("out-currentBalance").textContent = "$" + fmt(currentBalance);
       
-      const profitEl = document.getElementById('out-currentProfit');
-      profitEl.textContent = fmtCurr(currentProfit);
-      if (currentProfit > 0) {
-        profitEl.className = "font-mono font-bold text-emerald-400";
-      } else if (currentProfit < 0) {
-        profitEl.className = "font-mono font-bold text-rose-400";
-      } else {
-        profitEl.className = "font-mono font-bold text-white";
-      }
+      const profitEl = document.getElementById("out-currentProfit");
+      profitEl.textContent = (currentProfit >= 0 ? "+$" : "-$") + fmt(Math.abs(currentProfit));
+      profitEl.style.color = currentProfit >= 0 ? "var(--tv-teal)" : "var(--tv-red)";
 
-      document.getElementById('out-progressPct').textContent = isNaN(progressToTargetPct) ? "n/a" : `${fmtNum(progressToTargetPct)} %`;
-      
-      // Update progress bar
-      const progressBar = document.getElementById('progress-bar');
-      const clampedProgress = Math.min(Math.max(progressToTargetPct || 0, 0), 100);
-      progressBar.style.width = `${clampedProgress}%`;
+      document.getElementById("out-progressPct").textContent = isNaN(progressToTargetPct) ? "n/a" : `${fmt(progressToTargetPct, 1)}%`;
 
-      document.getElementById('out-lotSize').textContent = isNaN(lotSize) ? "n/a" : fmtNum(lotSize, 2);
-      document.getElementById('out-riskPerTrade').textContent = `${fmtCurr(tradeRiskCurrency)} (${fmtNum(riskPercent)}%)`;
-      document.getElementById('out-rewardPerTrade').textContent = isNaN(tradeRewardCurrency) ? "n/a" : `${fmtCurr(tradeRewardCurrency)} (${fmtNum(rewardPercent)}%)`;
+      // Outputs: Position Sizing & Risk
+      document.getElementById("out-lotSize").textContent = isNaN(lotSize) ? "n/a" : fmt(lotSize, 2) + " Lots";
+      document.getElementById("out-riskPerTrade").textContent = `$${fmt(tradeRiskCurrency)} (${fmt(riskPercent, 1)}%)`;
+      document.getElementById("out-rewardPerTrade").textContent = isNaN(tradeRewardCurrency) ? "n/a" : `$${fmt(tradeRewardCurrency)} (${fmt(rewardPercent, 1)}%)`;
 
-      document.getElementById('out-dailyDD').textContent = `${fmtCurr(dailyDDCurrency)} (${fmtNum(dailyDDPercent)}%)`;
-      document.getElementById('out-maxDD').textContent = `${fmtCurr(maxDDCurrency)} (${fmtNum(maxDrawdownPerc)}%)`;
-      
-      document.getElementById('out-lossesDailyDD').textContent = isNaN(lossesToDailyDD) ? "n/a" : lossesToDailyDD;
-      document.getElementById('out-winsToPass').textContent = isNaN(winsToPass) ? "n/a" : winsToPass;
+      // Outputs: Drawdown Safety
+      document.getElementById("out-dailyDD").textContent = `$${fmt(dailyDDCurrency)} (${fmt(dailyDDPercent, 1)}%)`;
+      document.getElementById("out-maxDD").textContent = `$${fmt(maxDDCurrency)} (${fmt(maxDrawdownPerc, 1)}%)`;
+      document.getElementById("out-lossesDailyDD").textContent = isNaN(lossesToDailyDD) ? "n/a" : `${lossesToDailyDD} Trades`;
+      document.getElementById("out-winsToPass").textContent = isNaN(winsToPass) ? "n/a" : `${winsToPass} Trades`;
 
-      // 4. UI Updates - RRR Metrics Table
-      document.getElementById('out-rrr').textContent = isNaN(rrr) ? "RR n/a" : `1:${fmtNum(rrr, 2)}`;
-      document.getElementById('out-riskPoints').textContent = fmtNum(slPoints, 0);
-      document.getElementById('out-rewardPoints').textContent = fmtNum(tpPoints, 0);
-      document.getElementById('out-breakevenWR').textContent = isNaN(breakevenWinrate) ? "n/a" : `${fmtNum(breakevenWinrate)} %`;
-      document.getElementById('out-winRate').textContent = isNaN(winRatePct) ? "n/a" : `${fmtNum(winRatePct)} %`;
-      document.getElementById('out-totalTrades').textContent = totalTrades;
-
-      // 5. Mobile Sticky Header Summary Updates
-      document.getElementById('mob-lotSize').textContent = isNaN(lotSize) ? "n/a" : fmtNum(lotSize, 2);
-      document.getElementById('mob-riskVal').textContent = fmtCurr(tradeRiskCurrency);
-      document.getElementById('mob-winsToPass').textContent = isNaN(winsToPass) ? "n/a" : winsToPass;
-
-      // 6. Dynamic Account Status Badge
-      const statusBadge = document.getElementById('statusBadge');
-      const statusText = document.getElementById('statusBadgeText');
-
-      if (currentProfit >= targetProfitCurrency && targetProfitCurrency > 0) {
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-mono font-medium flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse";
-        statusText.textContent = "TARGET PASSED! 🎉";
-      } else if (currentProfit <= -maxDDCurrency && maxDDCurrency > 0) {
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-mono font-medium flex items-center gap-1.5 bg-rose-500/20 text-rose-400 border border-rose-500/40";
-        statusText.textContent = "MAX DD BREACHED ⚠️";
-      } else if (currentProfit <= -dailyDDCurrency && dailyDDCurrency > 0) {
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-mono font-medium flex items-center gap-1.5 bg-amber-500/20 text-amber-400 border border-amber-500/40";
-        statusText.textContent = "DAILY DD BREACHED ⚠️";
-      } else {
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
-        statusText.textContent = "Account Active";
-      }
+      // Outputs: RRR Engine
+      document.getElementById("out-rrr").textContent = isNaN(rrr) ? "n/a" : `1 : ${fmt(rrr, 2)}`;
+      document.getElementById("out-riskPoints").textContent = fmt(slPoints, 0) + " pts";
+      document.getElementById("out-rewardPoints").textContent = fmt(tpPoints, 0) + " pts";
+      document.getElementById("out-breakevenWR").textContent = isNaN(breakevenWinrate) ? "n/a" : `${fmt(breakevenWinrate, 1)}%`;
+      document.getElementById("out-winRate").textContent = isNaN(winRatePct) ? "n/a" : `${fmt(winRatePct, 1)}%`;
     }
 
-    // Run initial calculations on page load
-    window.addEventListener('DOMContentLoaded', calculate);
+    // Run initial execution
+    calculate();
   </script>
 </body>
 </html>
