@@ -1,1 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win Rate Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Remove default spin buttons from number inputs for a cleaner look */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-emerald-500 selection:text-white">
 
+    <main class="bg-slate-800 rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-700">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Trading Calculator</h1>
+            <p class="text-slate-400 text-sm">Calculate Win Rate, R:R, and Expectancy.</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div>
+                <label for="wins" class="block text-sm font-semibold text-emerald-400 mb-2 uppercase tracking-wider">Wins</label>
+                <input type="number" id="wins" min="0" placeholder="0" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+            </div>
+            <div>
+                <label for="losses" class="block text-sm font-semibold text-rose-400 mb-2 uppercase tracking-wider">Losses</label>
+                <input type="number" id="losses" min="0" placeholder="0" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
+            </div>
+            <div>
+                <label for="avgLoss" class="block text-sm font-semibold text-rose-400 mb-2 uppercase tracking-wider flex justify-between">Avg Loss <span>(Pts)</span></label>
+                <input type="number" id="avgLoss" min="0" step="any" placeholder="10" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
+            </div>
+            <div>
+                <label for="avgWin" class="block text-sm font-semibold text-emerald-400 mb-2 uppercase tracking-wider flex justify-between">Avg Win <span>(Pts)</span></label>
+                <input type="number" id="avgWin" min="0" step="any" placeholder="20" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="bg-slate-900 rounded-2xl p-6 text-center border border-slate-700 relative overflow-hidden">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Win Rate</div>
+                    <div id="winRateDisplay" class="text-3xl font-black text-slate-300 transition-colors">0.0%</div>
+                </div>
+                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Risk:Reward</div>
+                    <div id="rrDisplay" class="text-3xl font-black text-slate-300 transition-colors">1:0.0</div>
+                </div>
+                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 col-span-2">
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Expectancy (Per Trade)</div>
+                    <div id="expectancyDisplay" class="text-4xl font-black text-slate-300 transition-colors">0.0 pts</div>
+                </div>
+            </div>
+
+            <div class="text-slate-400 font-medium mb-4 text-sm">
+                Total Trades: <span id="totalMatches" class="text-white font-bold">0</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="h-3 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div id="winRateBar" class="h-full bg-slate-500 w-0 transition-all duration-500 ease-out rounded-full"></div>
+            </div>
+            
+            <div class="flex justify-between mt-3 text-xs font-bold tracking-wider uppercase">
+                <span class="text-rose-500">0%</span>
+                <span class="text-slate-500">50%</span>
+                <span class="text-emerald-500">100%</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const winsInput = document.getElementById('wins');
+        const lossesInput = document.getElementById('losses');
+        const avgLossInput = document.getElementById('avgLoss');
+        const avgWinInput = document.getElementById('avgWin');
+        
+        const winRateDisplay = document.getElementById('winRateDisplay');
+        const rrDisplay = document.getElementById('rrDisplay');
+        const expectancyDisplay = document.getElementById('expectancyDisplay');
+        const totalMatchesDisplay = document.getElementById('totalMatches');
+        const winRateBar = document.getElementById('winRateBar');
+
+        function calculateMetrics() {
+            // Parse inputs, defaulting to 0, and prevent negative numbers
+            const wins = Math.max(0, parseInt(winsInput.value) || 0);
+            const losses = Math.max(0, parseInt(lossesInput.value) || 0);
+            const avgLoss = Math.max(0, parseFloat(avgLossInput.value) || 0);
+            const avgWin = Math.max(0, parseFloat(avgWinInput.value) || 0);
+            
+            const total = wins + losses;
+            let winRate = 0;
+            let lossRate = 0;
+
+            if (total > 0) {
+                winRate = wins / total;
+                lossRate = losses / total;
+            }
+
+            // Calculate Risk:Reward (1 : R)
+            let rrValue = 0;
+            if (avgLoss > 0) {
+                rrValue = avgWin / avgLoss;
+            } else if (avgWin > 0) {
+                rrValue = Infinity; // Infinite reward if risk is 0 but reward > 0
+            }
+
+            // Calculate Expectancy in points: (Win Rate * Avg Win Pts) - (Loss Rate * Avg Loss Pts)
+            const expectancy = (winRate * avgWin) - (lossRate * avgLoss);
+
+            // Update UI - Total Trades
+            totalMatchesDisplay.textContent = total.toLocaleString();
+            
+            // Update UI - Win Rate
+            const winRatePercent = winRate * 100;
+            winRateDisplay.textContent = `${winRatePercent.toFixed(1)}%`;
+            winRateBar.style.width = `${winRatePercent}%`;
+
+            // Update UI - R:R
+            rrDisplay.textContent = rrValue === Infinity ? '1:∞' : `1:${rrValue.toFixed(2)}`;
+
+            // Update UI - Expectancy in points
+            const sign = expectancy > 0 ? '+' : (expectancy < 0 ? '-' : '');
+            expectancyDisplay.textContent = `${sign}${Math.abs(expectancy).toFixed(1)} pts`;
+
+            // Color Coding based on profitability/metrics
+            winRateDisplay.className = `text-3xl font-black transition-colors ${winRatePercent >= 50 ? 'text-emerald-400' : (total > 0 ? 'text-rose-400' : 'text-slate-300')}`;
+            
+            rrDisplay.className = `text-3xl font-black transition-colors ${rrValue >= 1 ? 'text-emerald-400' : (rrValue > 0 ? 'text-rose-400' : 'text-slate-300')}`;
+            
+            expectancyDisplay.className = `text-4xl font-black transition-colors ${expectancy > 0 ? 'text-emerald-400' : (expectancy < 0 ? 'text-rose-400' : 'text-slate-300')}`;
+
+            winRateBar.className = `h-full w-0 transition-all duration-500 ease-out rounded-full ${winRatePercent >= 50 ? 'bg-emerald-500' : (total > 0 ? 'bg-rose-500' : 'bg-slate-500')}`;
+        }
+
+        // Listen for real-time input changes
+        winsInput.addEventListener('input', calculateMetrics);
+        lossesInput.addEventListener('input', calculateMetrics);
+        avgLossInput.addEventListener('input', calculateMetrics);
+        avgWinInput.addEventListener('input', calculateMetrics);
+        
+        // Initial calculation on load
+        calculateMetrics();
+    </script>
+</body>
+</html>
