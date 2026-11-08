@@ -1,160 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win Rate Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Remove default spin buttons from number inputs for a cleaner look */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PFRMT v1.0 - Mobile Risk Calculator</title>
+  <style>
+    :root {
+      --bg-color: #121417;
+      --card-bg: #1e222d;
+      --border-color: #2a2e39;
+      --text-color: #d1d4dc;
+      --text-dim: #787b86;
+      --accent-green: #26a69a;
+      --accent-teal: #00897b;
+      --accent-orange: #ff9800;
+      --accent-red: #ef5350;
+      --accent-aqua: #00bcd4;
+      --accent-blue: #2196f3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 12px;
+      font-size: 14px;
+      padding-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 12px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .accordion {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 12px;
+      font-weight: bold;
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-body {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    input {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .table-container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .section-header {
+      background-color: #000;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-row:last-child {
+      border-bottom: none;
+    }
+
+    .data-row .label {
+      font-weight: 500;
+    }
+
+    .data-row .value {
+      font-weight: bold;
+    }
+
+    /* Group Colorings matching TradingView */
+    .bg-green { background-color: rgba(38, 166, 154, 0.2); }
+    .bg-teal  { background-color: rgba(0, 137, 123, 0.2); }
+    .bg-orange{ background-color: rgba(255, 152, 0, 0.2); }
+    .bg-red   { background-color: rgba(239, 83, 80, 0.2); }
+    .bg-aqua  { background-color: rgba(0, 188, 212, 0.2); }
+    .bg-blue  { background-color: rgba(33, 150, 243, 0.2); }
+
+    .footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 12px;
+      margin-top: 16px;
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-emerald-500 selection:text-white">
+<body>
 
-    <main class="bg-slate-800 rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-700">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Trading Calculator</h1>
-            <p class="text-slate-400 text-sm">Calculate Win Rate, R:R, and Expectancy.</p>
-        </header>
+  <h2>Prop Firm Risk Management Table v1.0</h2>
 
-        <!-- Input Section -->
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div>
-                <label for="wins" class="block text-sm font-semibold text-emerald-400 mb-2 uppercase tracking-wider">Wins</label>
-                <input type="number" id="wins" min="0" placeholder="0" 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
-            </div>
-            <div>
-                <label for="losses" class="block text-sm font-semibold text-rose-400 mb-2 uppercase tracking-wider">Losses</label>
-                <input type="number" id="losses" min="0" placeholder="0" 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
-            </div>
-            <div>
-                <label for="avgLoss" class="block text-sm font-semibold text-rose-400 mb-2 uppercase tracking-wider flex justify-between">Avg Loss <span>(Pts)</span></label>
-                <input type="number" id="avgLoss" min="0" step="any" placeholder="10" 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
-            </div>
-            <div>
-                <label for="avgWin" class="block text-sm font-semibold text-emerald-400 mb-2 uppercase tracking-wider flex justify-between">Avg Win <span>(Pts)</span></label>
-                <input type="number" id="avgWin" min="0" step="any" placeholder="20" 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
-            </div>
-        </div>
+  <!-- INPUT CONTROLS -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleInputs()">
+      <span>⚙️ Settings & Inputs</span>
+      <span id="accordion-icon">▲</span>
+    </div>
+    <div class="accordion-body" id="inputs-body">
+      
+      <!-- Trade Inputs -->
+      <div class="input-group">
+        <label>Stop Loss (pts)</label>
+        <input type="number" id="slPoints" value="1000" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Take Profit (pts)</label>
+        <input type="number" id="tpPoints" value="2000" oninput="calculate()">
+      </div>
+      
+      <!-- Account Inputs -->
+      <div class="input-group">
+        <label>Account Size ($)</label>
+        <input type="number" id="accountSize" value="10000" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Current P/L ($)</label>
+        <input type="number" id="currentProfit" value="0" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Target %</label>
+        <input type="number" id="targetPercent" value="10" step="0.5" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Daily DD %</label>
+        <input type="number" id="dailyDDPercent" value="5" step="0.5" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Max Overall DD %</label>
+        <input type="number" id="maxDrawdownPerc" value="10" step="0.5" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Risk / Trade (%)</label>
+        <input type="number" id="riskPercent" value="1" step="0.1" oninput="calculate()">
+      </div>
+      <div class="input-group full-width">
+        <label>Pip Value per 1 Lot ($)</label>
+        <input type="number" id="pipValuePerLot" value="1" step="0.1" oninput="calculate()">
+      </div>
 
-        <!-- Results Section -->
-        <div class="bg-slate-900 rounded-2xl p-6 text-center border border-slate-700 relative overflow-hidden">
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
-                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Win Rate</div>
-                    <div id="winRateDisplay" class="text-3xl font-black text-slate-300 transition-colors">0.0%</div>
-                </div>
-                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
-                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Risk:Reward</div>
-                    <div id="rrDisplay" class="text-3xl font-black text-slate-300 transition-colors">1:0.0</div>
-                </div>
-                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 col-span-2">
-                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Expectancy (Per Trade)</div>
-                    <div id="expectancyDisplay" class="text-4xl font-black text-slate-300 transition-colors">0.0 pts</div>
-                </div>
-            </div>
+      <!-- Stats Inputs -->
+      <div class="input-group">
+        <label>Win Trades</label>
+        <input type="number" id="winTrades" value="0" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Loss Trades</label>
+        <input type="number" id="lossTrades" value="0" oninput="calculate()">
+      </div>
 
-            <div class="text-slate-400 font-medium mb-4 text-sm">
-                Total Trades: <span id="totalMatches" class="text-white font-bold">0</span>
-            </div>
+    </div>
+  </div>
 
-            <!-- Progress Bar -->
-            <div class="h-3 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                <div id="winRateBar" class="h-full bg-slate-500 w-0 transition-all duration-500 ease-out rounded-full"></div>
-            </div>
-            
-            <div class="flex justify-between mt-3 text-xs font-bold tracking-wider uppercase">
-                <span class="text-rose-500">0%</span>
-                <span class="text-slate-500">50%</span>
-                <span class="text-emerald-500">100%</span>
-            </div>
-        </div>
-    </main>
+  <!-- PROP TABLE DISPLAY -->
+  <div class="table-container">
+    
+    <div class="section-header">TARGET</div>
+    <div class="data-row bg-green"><span class="label">Account Size</span><span class="value" id="out-accountSize">-</span></div>
+    <div class="data-row bg-green"><span class="label">Target Profit</span><span class="value" id="out-targetProfit">-</span></div>
+    <div class="data-row bg-green"><span class="label">Target Balance</span><span class="value" id="out-targetBalance">-</span></div>
 
-    <script>
-        const winsInput = document.getElementById('wins');
-        const lossesInput = document.getElementById('losses');
-        const avgLossInput = document.getElementById('avgLoss');
-        const avgWinInput = document.getElementById('avgWin');
-        
-        const winRateDisplay = document.getElementById('winRateDisplay');
-        const rrDisplay = document.getElementById('rrDisplay');
-        const expectancyDisplay = document.getElementById('expectancyDisplay');
-        const totalMatchesDisplay = document.getElementById('totalMatches');
-        const winRateBar = document.getElementById('winRateBar');
+    <div class="section-header">CURRENT STATUS</div>
+    <div class="data-row bg-teal"><span class="label">Current Balance</span><span class="value" id="out-currentBalance">-</span></div>
+    <div class="data-row bg-teal"><span class="label">Current Profit</span><span class="value" id="out-currentProfit">-</span></div>
+    <div class="data-row bg-teal"><span class="label">Progress to Target</span><span class="value" id="out-progressPct">-</span></div>
 
-        function calculateMetrics() {
-            // Parse inputs, defaulting to 0, and prevent negative numbers
-            const wins = Math.max(0, parseInt(winsInput.value) || 0);
-            const losses = Math.max(0, parseInt(lossesInput.value) || 0);
-            const avgLoss = Math.max(0, parseFloat(avgLossInput.value) || 0);
-            const avgWin = Math.max(0, parseFloat(avgWinInput.value) || 0);
-            
-            const total = wins + losses;
-            let winRate = 0;
-            let lossRate = 0;
+    <div class="section-header">TRADE RISK</div>
+    <div class="data-row bg-orange"><span class="label">Lot Size</span><span class="value" id="out-lotSize">-</span></div>
+    <div class="data-row bg-orange"><span class="label">Risk / Trade</span><span class="value" id="out-riskPerTrade">-</span></div>
+    <div class="data-row bg-orange"><span class="label">Reward @ TP</span><span class="value" id="out-rewardPerTrade">-</span></div>
 
-            if (total > 0) {
-                winRate = wins / total;
-                lossRate = losses / total;
-            }
+    <div class="section-header">DRAWDOWN</div>
+    <div class="data-row bg-red"><span class="label">Daily DD</span><span class="value" id="out-dailyDD">-</span></div>
+    <div class="data-row bg-red"><span class="label">Max DD</span><span class="value" id="out-maxDD">-</span></div>
+    <div class="data-row bg-red"><span class="label">Losses to Daily DD</span><span class="value" id="out-lossesDailyDD">-</span></div>
+    <div class="data-row bg-aqua"><span class="label">Wins to Pass</span><span class="value" id="out-winsToPass">-</span></div>
 
-            // Calculate Risk:Reward (1 : R)
-            let rrValue = 0;
-            if (avgLoss > 0) {
-                rrValue = avgWin / avgLoss;
-            } else if (avgWin > 0) {
-                rrValue = Infinity; // Infinite reward if risk is 0 but reward > 0
-            }
+  </div>
 
-            // Calculate Expectancy in points: (Win Rate * Avg Win Pts) - (Loss Rate * Avg Loss Pts)
-            const expectancy = (winRate * avgWin) - (lossRate * avgLoss);
+  <!-- RRR METRICS TABLE DISPLAY -->
+  <div class="table-container">
+    <div class="section-header">RRR METRICS</div>
+    <div class="data-row"><span class="label">RR Ratio</span><span class="value" id="out-rrr">-</span></div>
+    <div class="data-row bg-red"><span class="label">Risk (Points)</span><span class="value" id="out-riskPoints">-</span></div>
+    <div class="data-row bg-blue"><span class="label">Reward (Points)</span><span class="value" id="out-rewardPoints">-</span></div>
+    <div class="data-row bg-aqua"><span class="label">Breakeven WR</span><span class="value" id="out-breakevenWR">-</span></div>
+    <div class="data-row"><span class="label">Win Rate</span><span class="value" id="out-winRate">-</span></div>
+  </div>
 
-            // Update UI - Total Trades
-            totalMatchesDisplay.textContent = total.toLocaleString();
-            
-            // Update UI - Win Rate
-            const winRatePercent = winRate * 100;
-            winRateDisplay.textContent = `${winRatePercent.toFixed(1)}%`;
-            winRateBar.style.width = `${winRatePercent}%`;
+  <div class="footer">
+    MX Capital® | Created by Gimbo
+  </div>
 
-            // Update UI - R:R
-            rrDisplay.textContent = rrValue === Infinity ? '1:∞' : `1:${rrValue.toFixed(2)}`;
+  <script>
+    function fmt(val, decimals = 2) {
+      if (isNaN(val) || val === null || !isFinite(val)) return "n/a";
+      return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
 
-            // Update UI - Expectancy in points
-            const sign = expectancy > 0 ? '+' : (expectancy < 0 ? '-' : '');
-            expectancyDisplay.textContent = `${sign}${Math.abs(expectancy).toFixed(1)} pts`;
+    function toggleInputs() {
+      const body = document.getElementById("inputs-body");
+      const icon = document.getElementById("accordion-icon");
+      if (body.style.display === "none") {
+        body.style.display = "grid";
+        icon.textContent = "▲";
+      } else {
+        body.style.display = "none";
+        icon.textContent = "▼";
+      }
+    }
 
-            // Color Coding based on profitability/metrics
-            winRateDisplay.className = `text-3xl font-black transition-colors ${winRatePercent >= 50 ? 'text-emerald-400' : (total > 0 ? 'text-rose-400' : 'text-slate-300')}`;
-            
-            rrDisplay.className = `text-3xl font-black transition-colors ${rrValue >= 1 ? 'text-emerald-400' : (rrValue > 0 ? 'text-rose-400' : 'text-slate-300')}`;
-            
-            expectancyDisplay.className = `text-4xl font-black transition-colors ${expectancy > 0 ? 'text-emerald-400' : (expectancy < 0 ? 'text-rose-400' : 'text-slate-300')}`;
+    function calculate() {
+      // Inputs
+      const slPoints = parseFloat(document.getElementById("slPoints").value) || 0;
+      const tpPoints = parseFloat(document.getElementById("tpPoints").value) || 0;
+      const accountSize = parseFloat(document.getElementById("accountSize").value) || 0;
+      const currentProfit = parseFloat(document.getElementById("currentProfit").value) || 0;
+      const targetPercent = parseFloat(document.getElementById("targetPercent").value) || 0;
+      const dailyDDPercent = parseFloat(document.getElementById("dailyDDPercent").value) || 0;
+      const maxDrawdownPerc = parseFloat(document.getElementById("maxDrawdownPerc").value) || 0;
+      const riskPercent = parseFloat(document.getElementById("riskPercent").value) || 0;
+      const pipValuePerLot = parseFloat(document.getElementById("pipValuePerLot").value) || 0;
+      const winTrades = parseFloat(document.getElementById("winTrades").value) || 0;
+      const lossTrades = parseFloat(document.getElementById("lossTrades").value) || 0;
 
-            winRateBar.className = `h-full w-0 transition-all duration-500 ease-out rounded-full ${winRatePercent >= 50 ? 'bg-emerald-500' : (total > 0 ? 'bg-rose-500' : 'bg-slate-500')}`;
-        }
+      // Calculations
+      const rrr = slPoints > 0 ? tpPoints / slPoints : NaN;
+      const tradeRiskCurrency = accountSize * (riskPercent / 100.0);
+      const tradeRewardCurrency = tradeRiskCurrency * rrr;
+      const rewardPercent = riskPercent * rrr;
 
-        // Listen for real-time input changes
-        winsInput.addEventListener('input', calculateMetrics);
-        lossesInput.addEventListener('input', calculateMetrics);
-        avgLossInput.addEventListener('input', calculateMetrics);
-        avgWinInput.addEventListener('input', calculateMetrics);
-        
-        // Initial calculation on load
-        calculateMetrics();
-    </script>
+      const targetProfitCurrency = accountSize * (targetPercent / 100.0);
+      const currentBalance = accountSize + currentProfit;
+      const targetBalance = Math.max(targetProfitCurrency - currentProfit, 0);
+
+      let dailyDDCurrency = Math.max(currentBalance * (dailyDDPercent / 100.0), 0);
+      let maxDDCurrency = Math.max(currentBalance * (maxDrawdownPerc / 100.0), 0);
+
+      const progressToTargetPct = targetProfitCurrency > 0 ? (currentProfit / targetProfitCurrency) * 100.0 : NaN;
+      const remainingTarget = Math.max(targetProfitCurrency - currentProfit, 0);
+
+      const lossesToDailyDD = tradeRiskCurrency > 0 ? Math.floor(dailyDDCurrency / tradeRiskCurrency) : NaN;
+      const winsToPass = (rrr * tradeRiskCurrency) > 0 ? Math.ceil(remainingTarget / (rrr * tradeRiskCurrency)) : NaN;
+
+      const breakevenWinrate = rrr > 0 ? (1.0 / (rrr + 1.0)) * 100.0 : NaN;
+      const lotSize = (slPoints > 0 && pipValuePerLot > 0) ? tradeRiskCurrency / (slPoints * pipValuePerLot) : NaN;
+
+      const totalTrades = winTrades + lossTrades;
+      const winRatePct = totalTrades > 0 ? (winTrades / totalTrades) * 100.0 : NaN;
+
+      // Outputs: Prop Table
+      document.getElementById("out-accountSize").textContent = fmt(accountSize);
+      document.getElementById("out-targetProfit").textContent = `${fmt(targetProfitCurrency)} (${fmt(targetPercent)}%)`;
+      document.getElementById("out-targetBalance").textContent = fmt(targetBalance);
+
+      document.getElementById("out-currentBalance").textContent = fmt(currentBalance);
+      document.getElementById("out-currentProfit").textContent = fmt(currentProfit);
+      document.getElementById("out-progressPct").textContent = isNaN(progressToTargetPct) ? "n/a" : `${fmt(progressToTargetPct)} %`;
+
+      document.getElementById("out-lotSize").textContent = isNaN(lotSize) ? "n/a" : fmt(lotSize, 2);
+      document.getElementById("out-riskPerTrade").textContent = `${fmt(tradeRiskCurrency)} (${fmt(riskPercent)}%)`;
+      document.getElementById("out-rewardPerTrade").textContent = isNaN(tradeRewardCurrency) ? "n/a" : `${fmt(tradeRewardCurrency)} (${fmt(rewardPercent)}%)`;
+
+      document.getElementById("out-dailyDD").textContent = `${fmt(dailyDDCurrency)} (${fmt(dailyDDPercent)}%)`;
+      document.getElementById("out-maxDD").textContent = `${fmt(maxDDCurrency)} (${fmt(maxDrawdownPerc)}%)`;
+      document.getElementById("out-lossesDailyDD").textContent = isNaN(lossesToDailyDD) ? "n/a" : lossesToDailyDD;
+      document.getElementById("out-winsToPass").textContent = isNaN(winsToPass) ? "n/a" : winsToPass;
+
+      // Outputs: RRR Table
+      document.getElementById("out-rrr").textContent = isNaN(rrr) ? "RR n/a" : `1:${fmt(rrr)}`;
+      document.getElementById("out-riskPoints").textContent = fmt(slPoints);
+      document.getElementById("out-rewardPoints").textContent = fmt(tpPoints);
+      document.getElementById("out-breakevenWR").textContent = isNaN(breakevenWinrate) ? "n/a" : `${fmt(breakevenWinrate)} %`;
+      document.getElementById("out-winRate").textContent = isNaN(winRatePct) ? "n/a" : `${fmt(winRatePct)} %`;
+    }
+
+    // Initial calculation on load
+    calculate();
+  </script>
 </body>
 </html>
